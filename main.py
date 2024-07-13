@@ -19,7 +19,7 @@ client = OpenAI(
     api_key=os.environ.get('OPEN_AI_KEY')
 )
 model = "gpt-3.5-turbo"
-temperature = 0.3
+temperature = 1.5
 max_tokens = 50
 topic = ""
 
@@ -114,7 +114,12 @@ class VirtualPet:
             self.y_dir = random.randint(-4, 0)
 
         self.window.after(random.randint(500, 5000), self.pause)
-
+        if(win32gui.GetForegroundWindow() not in selected_applications):
+            print("unproductive")
+            if random.random() < 0.15:
+                get_motivation()
+        else:
+            print("productive")
         # Schedule the next direction change
         self.window.after(random.randint(1000, 5000), self.change_direction)
     
@@ -207,6 +212,7 @@ def show_pet():
 
         # Create virtual pet
         app = VirtualPet(window)
+        
         window.mainloop()
 
 def create_checklist(apps):
