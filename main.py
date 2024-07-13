@@ -2,8 +2,15 @@ import tkinter as tk
 from tkinter import ttk
 import win32gui
 import win32con
+import time
+import random 
+import pyautogui
+from PIL import ImageTk, Image
 
 selected_applications = []
+timeFocused = 0
+timeUnfocused = 0
+
 
 def is_alt_tab_window(hwnd):
     """Check if the window is a visible Alt-Tab window."""
@@ -30,6 +37,95 @@ def get_visible_applications():
     windows = []
     win32gui.EnumWindows(callback, windows)
     return windows
+
+def move_window(new_root, start_x, start_y, end_x, end_y, step, interval):
+    """Move the window from start position to end position in steps."""
+    def step_move():
+        nonlocal start_x, start_y
+        if abs(start_x - end_x) < step and abs(start_y - end_y) < step:
+            start_x, start_y = end_x, end_y
+            new_root.geometry(f"+{end_x}+{end_y}")
+            new_root.after(5000, move_window_to_new_position, new_root)  # Wait 5 seconds before moving again
+        else:
+            if start_x < end_x:
+                start_x += step
+            elif start_x > end_x:
+                start_x -= step
+            if start_y < end_y:
+                start_y += step
+            elif start_y > end_y:
+                start_y -= step
+            new_root.geometry(f"+{start_x}+{start_y}")
+
+            if (win32gui.GetForegroundWindow() not in selected_applications):
+                print("unproductive")
+            else:
+                print("productive")
+            new_root.after(interval, step_move)
+
+    step_move()
+
+def move_window_to_new_position(new_root):
+    """Generate new random positions and start the movement."""
+    screen_width = new_root.winfo_screenwidth()
+    screen_height = new_root.winfo_screenheight()
+    new_x = random.randint(0, screen_width - 300)
+    new_y = random.randint(0, screen_height - 200)
+    current_pos = new_root.geometry().split("+")[1:]
+    current_x, current_y = int(current_pos[0]), int(current_pos[1])
+    move_window(new_root, current_x, current_y, new_x, new_y, step=5, interval=20)
+
+
+
+def show_pet():
+        window = tk.Tk()
+        window.title=("Virtual Pet")
+        #window.congigure(bg="white")
+        x= 500
+
+        screen_width = window.winfo_screenwidth()
+        screen_height = window.winfo_screenheight()
+
+        x_pos = 0
+        y_pos = 0
+        x_dir = 2
+        y_dir = 2
+
+        # Set the dimensions of the window
+        window_width = 383
+        window_height = 333
+        window.attributes('-topmost',True)
+        #window.attributes("-alpha", 1)  # Set transparency level
+        window.wm_attributes('-transparentcolor', 'white')
+        window.overrideredirect(True)
+
+        # Set the initial position of the window
+        window.geometry(f'{window_width}x{window_height}+{x_pos}+{y_pos}')
+
+        #Handle Events
+
+        #Dialogue options for pet
+        dialogue = []
+        img = 'Untitled_Artwork-1.png'
+        img = Image.open(img)
+        img.convert("RGBA")
+
+        # #
+        # window.config(highlightbackground='black')
+        # window.overrideredirect(True)
+        # window.wm_attributes('-transparentcolor','black')
+
+        #Make the pet movable
+        img = ImageTk.PhotoImage(img)
+
+        label = tk.Label(window, image = img, bg = 'white')
+        label.pack()
+
+        
+        window.after(5000, move_window_to_new_position, window)  # Start moving after 5 seconds
+
+
+        window.mainloop()
 
 def create_checklist(apps):
     """Create a checklist of visible applications using Tkinter."""
@@ -58,11 +154,24 @@ def create_checklist(apps):
         for app in selected_applications:
             print(selected_applications)
         root.destroy()
+        show_pet()
         
 
     ttk.Button(frame, text="Submit", command=print_selected).grid(row=len(apps) + 1, column=0, pady=(10, 0))
 
     root.mainloop()
+    
+   
+    
+
+if __name__ == "__main__":
+    startTime = time.time()
+    endTime = time.time()
+    switchTime = time.time()
+    
+    apps = get_visible_applications()
+    create_checklist(apps)
+    
     
 
 
