@@ -11,18 +11,27 @@ selected_applications = []
 timeFocused = 0
 timeUnfocused = 0
 
-def pause():
-    time.sleep(random.randint(500, 3000)/1000)
 
 class VirtualPet:
     def __init__(self, window):
         self.window = window
-        self.window.geometry("225x225")
         
         self.screen_width = self.window.winfo_screenwidth()
         self.screen_height = self.window.winfo_screenheight()
-        self.window_width = 225
-        self.window_height = 225
+        self.window_width = 500
+        self.window_height = 500
+
+        self.img_path = 'resources/doggo.gif'
+        self.img = Image.open(self.img_path)
+        self.numFrames = self.img.n_frames
+        self.idle = []
+        for i in range(self.numFrames):
+            obj = tk.PhotoImage(file = self.img_path, format = f"gif -index {i}")
+            self.idle.append(obj)
+
+        self.cycle = 0
+        self.check = 1
+        self.frame = self.idle[self.cycle]
         
         self.x_pos = random.randint(0, self.screen_width - self.window_width)
         self.y_pos = random.randint(0, self.screen_height - self.window_height)
@@ -30,8 +39,15 @@ class VirtualPet:
         self.x_dir = random.randint(-4, 4)
         self.y_dir = random.randint(-4, 4)
         
+
+        self.label = tk.Label(window, image = "")
+        self.label.pack()
+
         self.window.after(10, self.move_window)
+        self.window.overrideredirect(True)
         self.window.after(random.randint(1000, 1100), self.change_direction)  
+        self.window.after(1, self.update)
+
 
     def move_window(self):
         self.x_pos += self.x_dir
@@ -47,8 +63,11 @@ class VirtualPet:
         # Schedule the next move
         self.window.after(10, self.move_window)
 
+    def pause(self):
+        self.x_dir = 0
+        self.y_dir = 0
+
     def change_direction(self):
-        pause()
         self.x_dir = random.randint(-4, 4)
         self.y_dir = random.randint(-4, 4)
 
@@ -61,22 +80,22 @@ class VirtualPet:
         if self.y_pos >= self.screen_height - self.window_height:
             self.y_dir = random.randint(-4, 0)
 
+        self.window.after(random.randint(500, 5000), self.pause)
+
         # Schedule the next direction change
         self.window.after(random.randint(1000, 5000), self.change_direction)
-
-    def gif_work(cycle, frames, eventNum, firstNum, lastNum):
-        if cycle < len(frames) -1:
-            cycle+=1
+    
+    def gif_work(self):
+        if self.cycle < len(self.idle) -1:
+            self.cycle+=1
         else:
-            cycle = 0
-            event_number = random.randrange(firstNum,lastNum+1,1)
-        return cycle,event_number
+            self.cycle = 0
 
-    def update(cycle,check,event_number,x):
-    #idle
-        if check ==0:
-            frame = idle[cycle]
-            cycle ,event_number = gif_work(cycle,idle,event_number,1,9)
+    def update(self):
+            self.frame = self.idle[self.cycle]
+            self.label.configure(image=self.frame)
+            self.gif_work()
+            self.window.after(400, self.update)
 
 
 def is_alt_tab_window(hwnd):
@@ -146,33 +165,15 @@ def get_visible_applications():
 def show_pet():
         window = tk.Tk()
         window.title=("Virtual Pet")
-        #window.congigure(bg="white")
-        x= 500
-
         
         # Set the initial position of the window
         x_pos = 0
         y_pos = 0
         window.geometry(f'225x225+{x_pos}+{y_pos}')
         window.attributes('-topmost', True)
-        window.overrideredirect(True)
 
         # Create virtual pet
         app = VirtualPet(window)
-
-        # Dialogue options for pet
-        dialogue = []
-        img_path = 'resources/download.gif'
-        idle = [tk.PhotoImage(file=img_path,format = 'gif -index %i' %(i)) for i in range(6)]#idle gif , 5 frames
-
-        # Display the pet image
-        img = ImageTk.PhotoImage(Image.open(img_path))
-        label = tk.Label(window, image=img)
-        label.pack()
-        window.wm_attributes('-transparentcolor', 'white')
-
-        window.after(400,update,cycle,check,event_number,x)
-
         window.mainloop()
 
 def create_checklist(apps):
@@ -223,6 +224,6 @@ if __name__ == "__main__":
     
 
 
-if __name__ == "__main__":
-    apps = get_visible_applications()
-    create_checklist(apps)
+# if __name__ == "__main__":
+#     apps = get_visible_applications()
+#     create_checklist(apps)
