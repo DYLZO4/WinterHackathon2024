@@ -1,98 +1,84 @@
 import random
 import tkinter as tk
-import pyautogui
 from PIL import ImageTk, Image
+import time
 
-def moveLateral():
-    print("G")
-    global x_pos, x_dir
+def pause():
+    time.sleep(random.randint(500, 3000)/1000)
 
-    # Update position
-    x_pos += x_dir
+class VirtualPet:
+    def __init__(self, window):
+        self.window = window
+        self.window.geometry("225x225")
+        
+        self.screen_width = self.window.winfo_screenwidth()
+        self.screen_height = self.window.winfo_screenheight()
+        self.window_width = 225
+        self.window_height = 225
+        
+        self.x_pos = random.randint(0, self.screen_width - self.window_width)
+        self.y_pos = random.randint(0, self.screen_height - self.window_height)
+        
+        self.x_dir = random.randint(-4, 4)
+        self.y_dir = random.randint(-4, 4)
+        
+        self.window.after(10, self.move_window)
+        self.window.after(random.randint(1000, 1100), self.change_direction)  
 
-    # Check if the window hits the edge of the screen
-    if x_pos <= 0 or x_pos >= screen_width - window_width:
-        x_pos -= x_dir
+    def move_window(self):
+        self.x_pos += self.x_dir
+        self.y_pos += self.y_dir
 
-    # Move the window
-    window.geometry(f'+{x_pos}+{y_pos}')
+        if self.x_pos <= 0 or self.x_pos >= self.screen_width - self.window_width:
+            self.x_dir -= self.x_dir  
+        if self.y_pos <= 0 or self.y_pos >= self.screen_height - self.window_height:
+            self.y_dir -= self.y_dir
 
-    # Repeat after a short delay
-    window.after(10, moveLateral)
+        self.window.geometry(f'+{self.x_pos}+{self.y_pos}')
 
-def moveVertical():
-    print("Z")
-    global y_pos, y_dir
-    y_pos += y_dir
+        # Schedule the next move
+        self.window.after(10, self.move_window)
 
-    if y_pos >= 0 or y_pos <= screen_height - window_height:
-       y_pos -= y_dir
+    def change_direction(self):
+        pause()
+        self.x_dir = random.randint(-4, 4)
+        self.y_dir = random.randint(-4, 4)
 
-    # Move the window
-    window.geometry(f'+{x_pos}+{y_pos}')
+        if self.x_pos <= 0:
+            self.x_dir = random.randint(-0, 4)
+        if  self.x_pos >= self.screen_width - self.window_width:
+            self.x_dir = random.randint(-4, 0)
+        if self.y_pos <= 0:
+            self.y_dir = random.randint(0, 4)
+        if self.y_pos >= self.screen_height - self.window_height:
+            self.y_dir = random.randint(-4, 0)
 
-    # Repeat after a short delay
-    window.after(10, moveVertical)
+        # Schedule the next direction change
+        self.window.after(random.randint(1000, 5000), self.change_direction)
 
-#Window to place pet
-window = tk.Tk()
-window.title=("Virtual Pet")
-x= 500
+if __name__ == "__main__":
+    # Window to place pet
+    window = tk.Tk()
+    window.title("Virtual Pet")
 
-def eventHandler():
-    cycle = random.choice([0, 4])
+    # Set the initial position of the window
+    x_pos = 0
+    y_pos = 0
+    window.geometry(f'225x225+{x_pos}+{y_pos}')
+    window.attributes('-topmost', True)
+    window.overrideredirect(True)
 
-screen_width = window.winfo_screenwidth()
-screen_height = window.winfo_screenheight()
+    # Create virtual pet
+    app = VirtualPet(window)
 
-x_pos = 0
-y_pos = 0
-x_dir = 2
-y_dir = 2
+    # Dialogue options for pet
+    dialogue = []
+    img_path = 'resources/ppixpet.png'
 
-# Set the dimensions of the window
-window_width = 225
-window_height = 225
-window.attributes('-topmost',True)
-window.overrideredirect(True)
+    # Display the pet image
+    img = ImageTk.PhotoImage(Image.open(img_path))
+    label = tk.Label(window, image=img)
+    label.pack()
 
-# Set the initial position of the window
-window.geometry(f'{window_width}x{window_height}+{x_pos}+{y_pos}')
-
-#Handle Events
-
-#Dialogue options for pet
-dialogue = []
-img = 'resources/ppixpet.png'
-
-
-# #
-# window.config(highlightbackground='black')
-# window.overrideredirect(True)
-# window.wm_attributes('-transparentcolor','black')
-
-#Make the pet movable
-img = ImageTk.PhotoImage(Image.open(img))
-
-label = tk.Label(window,image = img)
-label.pack()
-
-
-
-window.mainloop()
-  
-def animate(cycle, frames, eventNum, firstNum, lastNum):
-    if cycle < len(frames) - 1:
-        cycle+=1
-    else:
-        cycle = 0
-        eventNum = random.randrange(firstNum, lastNum+1)
-    return cycle, eventNum
-
-
-
-    
-
-
-
+    window.mainloop()
 
