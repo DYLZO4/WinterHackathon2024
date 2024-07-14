@@ -27,7 +27,7 @@ class VirtualPet:
         self.window_width = self.img.width
         self.window_height = self.img.height
 
-        
+        self.state = "timid"
         self.numFrames = self.img.n_frames
         self.idle = []
         for i in range(self.numFrames):
@@ -68,13 +68,25 @@ class VirtualPet:
 
 
         self.move_window()
-        self.leave_treat()
         self.change_direction()
         self.update()
 
     def move_window(self):
-        self.x_pos += self.x_dir
-        self.y_pos += self.y_dir
+        if self.state != "timid":
+            self.x_pos += self.x_dir
+            self.y_pos += self.y_dir
+
+        if self.state == "timid":
+            if self.x_pos != 0 and self.x_pos > 0:
+                self.x_pos -= 2
+            
+            if self.x_pos != 0 and self.x_pos< 0:
+                self.x_pos += 2
+            if self.y_pos != self.screen_height - self.window_height and self.y_pos> self.screen_height - self.window_height:
+                self.y_pos -= 2
+            if self.y_pos != self.screen_height - self.window_height and self.y_pos < self.screen_height - self.window_height:
+                self.y_pos += 2
+                
 
         if self.x_pos <= 0 or self.x_pos >= self.screen_width - self.window_width:
             self.x_dir -= self.x_dir  
@@ -98,6 +110,8 @@ class VirtualPet:
         self.x_dir = random.randint(-4, 4)
         self.y_dir = random.randint(-4, 4)
 
+
+
         if self.x_pos <= 0:
             self.x_dir = random.randint(-0, 4)
         if  self.x_pos >= self.screen_width - self.window_width:
@@ -119,9 +133,10 @@ class VirtualPet:
             elif val > 0.7:
                 self.leave_treat()
                 
-                
+            self.state = "rowdy"
         else:
             print("productive")
+            self.state = "timid"
 
         # Schedule the next direction change
         self.window.after(random.randint(1000, 5000), self.change_direction)
