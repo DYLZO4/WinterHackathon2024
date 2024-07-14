@@ -23,4 +23,4 @@ def get_motivation():
         temperature= temperature,
         max_tokens= max_tokens
     )
-    return print(completion.choices[0].message.content)
+    return completion.choices[0].message.content

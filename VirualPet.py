@@ -1,5 +1,6 @@
 import random
 import tkinter as tk
+import time
 import win32gui
 from PIL import ImageTk, Image
 from gpt import get_motivation
@@ -18,8 +19,9 @@ class VirtualPet:
         self.screen_width = self.window.winfo_screenwidth()
         self.screen_height = self.window.winfo_screenheight()
 
-        self.img_path = 'assets/blobert.gif'
+        self.img_path = 'assets/crying.gif'
         self.img = Image.open(self.img_path)
+        
 
         self.img.convert("RGBA")
         self.window_width = self.img.width
@@ -61,6 +63,8 @@ class VirtualPet:
         self.textbox.attributes('-topmost', True)
         self.textbox.overrideredirect(True)
         self.textbox.withdraw()
+        self.textbox_content = tk.Label(self.textbox, text ="", font = ("Helvetica", 20, "bold"), wraplength=self.textbox_width)
+        
 
 
         self.move_window()
@@ -81,6 +85,7 @@ class VirtualPet:
         self.textbox.geometry(f'+{self.x_pos - int(self.textbox_width/2) - 50}+{self.y_pos-int(self.textbox_height)+70}')
 
         # Schedule the next move
+        
         self.window.after(10, self.move_window)
 
     def pause(self):
@@ -88,6 +93,8 @@ class VirtualPet:
         self.y_dir = 0
 
     def change_direction(self):
+        self.textbox_content.destroy()
+        self.textbox.withdraw()
         self.x_dir = random.randint(-4, 4)
         self.y_dir = random.randint(-4, 4)
 
@@ -103,11 +110,16 @@ class VirtualPet:
         self.window.after(random.randint(500, 5000), self.pause)
         if(win32gui.GetForegroundWindow() not in self.selectedapplications):
             print("unproductive")
-            if random.random() < 0.15:
-                self.textbox.deiconify()
+            val = random.random()
+            if val < 0.3:
                 get_motivation()
-                self.window.after(200, self.pause)
-                self.textbox.withdraw()
+                self.textbox_content = tk.Label(self.textbox, text =get_motivation(), font = ("Helvetica", 20, "bold"), wraplength=self.textbox_width-150)
+                self.textbox_content.place(relx=0.5, rely=0.5, anchor=tk.CENTER)  # Position the text label at the center of the image
+                self.textbox.deiconify()
+            elif val > 0.7:
+                self.leave_treat()
+                
+                
         else:
             print("productive")
 
@@ -149,7 +161,7 @@ class VirtualPet:
         root.overrideredirect(True)
         root.geometry(f"+{self.x_pos}+{self.y_pos}")
 
-        self.window.after(random.randint(5000, 15000), self.leave_treat)
+        #self.window.after(random.randint(5000, 15000), self.leave_treat)
     
 
     
