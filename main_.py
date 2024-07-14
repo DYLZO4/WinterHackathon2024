@@ -47,7 +47,6 @@ def show_pet():
         x_pos = 0
         y_pos = 0
         window.geometry(f'+{x_pos}+{y_pos}')
-        window.attributes('-topmost', True)
 
         # Create virtual pet
         VirtualPet(window)

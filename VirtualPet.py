@@ -11,6 +11,8 @@ class VirtualPet:
         self.window_width = 500
         self.window_height = 500
 
+        self.treats= []
+
         self.img_path = 'resources/doggo.gif'
         self.img = Image.open(self.img_path)
         self.numFrames = self.img.n_frames
@@ -33,12 +35,13 @@ class VirtualPet:
         self.label = tk.Label(window, image = "")
         self.label.pack()
 
-        self.window.after(10, self.move_window)
-        self.window.after(1000, self.leave_treat)
         self.window.overrideredirect(True)
-        self.window.after(random.randint(1000, 1100), self.change_direction)  
-        self.window.after(1, self.update)
 
+
+        self.move_window()
+        self.leave_treat()
+        self.change_direction()
+        self.update()
 
     def move_window(self):
         self.x_pos += self.x_dir
@@ -86,23 +89,30 @@ class VirtualPet:
             self.frame = self.idle[self.cycle]
             self.label.configure(image=self.frame)
             self.gif_work()
+            self.window.attributes('-topmost', True)
             self.window.after(400, self.update)
 
     def leave_treat(self):
-        self.root = tk.Toplevel(self.window)
+        root = tk.Toplevel()
 
-        self.img_path = "resources/ppixpet.png"  # Path to your treat image
-        self.image = Image.open(self.img_path)
-        self.img = ImageTk.PhotoImage(self.image)
+        def close_window(event, root):
+            root.destroy()    
 
-        self.label = tk.Label(self.root, image=self.img)
-        self.label.pack()
 
-        self.root.attributes('-topmost', True)
-        self.root.overrideredirect(True)
-        self.root.geometry(f"255x255+{self.x_pos}+{self.y_pos}")
+        treat_img_path = "resources/ppixpet.png"  # Path to your treat image
+        treat_image = Image.open(treat_img_path)
+        treat = ImageTk.PhotoImage(treat_image)
 
-        self.root.after(random.randint(5000, 15000), self.leave_treat)
+        treat_label = tk.Label(root, image=treat)
+        treat_label.image = treat
+        treat_label.pack()
 
-        # Set the treat window position
+        treat_label.bind("<Button-1>", lambda event, win=root: win.destroy() )
+
+        root.attributes('-topmost', True)
+        root.overrideredirect(True)
+        root.geometry(f"255x255+{self.x_pos}+{self.y_pos}")
+
+        self.window.after(random.randint(5000, 15000), self.leave_treat)
+
     
