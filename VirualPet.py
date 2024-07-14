@@ -146,7 +146,7 @@ class VirtualPet:
             root.destroy()    
 
 
-        treat_img_path = "assets/petPoo.gif"  # Path to your treat image
+        treat_img_path = "assets/poop.png"  # Path to your treat image
         treat_image = Image.open(treat_img_path)
         treat = ImageTk.PhotoImage(treat_image)
 
