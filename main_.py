@@ -1,16 +1,15 @@
+import os
 import tkinter as tk
 from tkinter import ttk
 import win32gui
 import win32con
 import time
-import random 
-import pyautogui
-from PIL import ImageTk, Image
-from VirtualPet import VirtualPet
 
+from VirtualPet import VirtualPet
 selected_applications = []
 timeFocused = 0
 timeUnfocused = 0
+
 
 def is_alt_tab_window(hwnd):
     """Check if the window is a visible Alt-Tab window."""
@@ -40,16 +39,15 @@ def get_visible_applications():
 
 
 def show_pet():
-        window = tk.Tk()
-
-        
+        window = tk.Tk()        
         # Set the initial position of the window
         x_pos = 0
         y_pos = 0
         window.geometry(f'+{x_pos}+{y_pos}')
 
         # Create virtual pet
-        VirtualPet(window)
+        VirtualPet(window, selected_applications)
+        
         window.mainloop()
 
 def create_checklist(apps):
@@ -85,6 +83,9 @@ def create_checklist(apps):
     ttk.Button(frame, text="Submit", command=print_selected).grid(row=len(apps) + 1, column=0, pady=(10, 0))
 
     root.mainloop()
+    
+   
+    
 
 if __name__ == "__main__":
     startTime = time.time()
@@ -93,4 +94,4 @@ if __name__ == "__main__":
     
     apps = get_visible_applications()
     create_checklist(apps)
-
+    
